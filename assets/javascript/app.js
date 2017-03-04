@@ -55,8 +55,13 @@ var triviaGame = {
 
 
 };
-console.log(triviaGame.currentTime);
 
+	//Game Phases
+	if (triviaGame.gameStatus === "startScreen"){
+		$(".results").hide();
+		startMenu();
+		triviaGame.gameStatus === "questionDisplayed";
+	};
 	
 //Event Listeners
 
@@ -69,6 +74,7 @@ $(".start-button").on("click", function(){
 	triviaGame.questionCounter = 1,
 	triviaGame.questionCorrectAnswer = "",
 	triviaGame.currentTime = 15,
+	$(".results").empty();
 	revealQuestionDisplay();
 	revealQuestion();
 	console.log(triviaGame.questionCorrectAnswer);
@@ -86,19 +92,21 @@ $(document).on("click", ".answer", function(){
 
 //Functions
 
-	//Initial window presentation, only start button shown
-function hideQuestionFeatures(){
-	$(".results").css("display", "none");
-	$(".question").css("display", "none");
-	$(".answers").css("display", "none");
-};
+//Initial window presentation, only start button shown
 
 function startMenu(){
 	hideQuestionFeatures();
 	$(".time-remaining").css("display", "none");
 	$(".start-button").show();
 };
-	//Hide start button, reveal questions
+
+function hideQuestionFeatures(){
+	$(".results").css("display", "none");
+	$(".question").css("display", "none");
+	$(".answers").css("display", "none");
+};
+	
+//Hide start button, reveal questions
 
 function revealQuestionDisplay(){
 	
@@ -119,6 +127,8 @@ function revealScoreAndReset(){
 
 
 //Functions for checking user answers and then actions for each option - user unanswered, wrong, right -
+//A bit of repeating code - work on this later
+
 function questionUnanswered(){
 	triviaGame.unanswered++;
 
@@ -127,6 +137,7 @@ function questionUnanswered(){
 	hideQuestionFeatures();
 
 	$(".results").html("Oh no - out of time! <br><br> The correct answer was: " + triviaGame.questionCorrectAnswer);
+	$(".results").show();
 	var countDownToNext = setTimeout(function(){
 		newQuestion();
 	}, 1000 * 3);
@@ -147,6 +158,7 @@ function checkAnswer(){
 	function questionRight(){
 		triviaGame.correct++;
 		$(".results").html("YAAASSS, Mama! <br><br> The correct answer was: " + triviaGame.questionCorrectAnswer);
+		$(".results").show();
 		var countDownToNext = setTimeout(function(){
 		newQuestion();
 	}, 1000 * 3);
@@ -155,6 +167,7 @@ function checkAnswer(){
 	function questionWrong(){
 		triviaGame.incorrect++;
 		$(".results").html("Really, queen? <br><br> The correct answer was: " + triviaGame.questionCorrectAnswer);
+		$(".results").show();
 		var countDownToNext = setTimeout(function(){
 		newQuestion();
 	}, 1000 * 3);
@@ -179,7 +192,7 @@ function newQuestion(){
 };
 };
 
-//Question Display
+//Question Display - make an object later
 function revealQuestion(){
 	if (triviaGame.questionCounter === 1){
 		$(".question").html("Which of the following is NOT a Latrice Royal quote?");
