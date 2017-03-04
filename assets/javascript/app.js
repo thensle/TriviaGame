@@ -2,16 +2,22 @@ $(document).ready(function(){
 
 // Initialize game object
 var secondCounter;
+var timeDisplay;
 
 var triviaGame = {
 	correct: 0,
 	incorrect: 0,
 	unanswered: 0,
 	userAnswer: "",
-	gameStatus: "startScreen", //options: startScreen, gameStarted, questionAnswered
+	gameStatus: "startScreen", //options: startScreen, questionDisplayed, questionAnswered
 	questionCounter: 1,
 	questionCorrectAnswer: "",
 	currentTime: 15,
+	runTimer: function(){
+		setTimeout(function(){
+		clearInterval(triviaGame.startTimer());
+		}, 1000*10)
+	},
 	startTimer: function() {
 	   	secondCounter = setInterval(function(){
 	    triviaGame.timerCountDown();
@@ -34,38 +40,44 @@ var triviaGame = {
 	    }
 
 	    return minutes + ":" + seconds;
-	  },
+	    },
 	timerCountDown: function () {
 
         triviaGame.currentTime--;
-	    var timeDisplay = triviaGame.time(triviaGame.currentTime);
+        console.log(triviaGame.currentTime);
+	    timeDisplay = triviaGame.time(triviaGame.currentTime);
 	    $(".timer").html(timeDisplay);
+	    if (triviaGame.currentTime === 0){
+	    	questionUnanswered();
+	    };
+		},
 
-  },
+
 };
+console.log(triviaGame.currentTime);
 
-//Initial Game State
+//Game Phases
 	if (triviaGame.gameStatus === "startScreen"){
 		startMenu();
+		triviaGame.gameStatus === "questionDisplayed";
 
-	}; //else if ();
 
-	if(triviaGame.currentTime === "00:00"){
-		questionUnanswered();
-	}
+	};
+	
 	
 //Event Listeners
 
 $(".start-button").on("click", function(){
-	revealDisplay();
+	revealQuestionDisplay();
 	revealQuestion();
+	console.log(triviaGame.questionCorrectAnswer);
 	$(".timer").html("00:15");
 	triviaGame.startTimer();
 });
 
-//Maybe not this, make a general event listener
 $(document).on("click", ".answer", function(){
 	triviaGame.userAnswer = $(this).attr("value");
+	console.log(triviaGame.userAnswer);
 	checkAnswer();
 
 });
@@ -73,16 +85,20 @@ $(document).on("click", ".answer", function(){
 //Functions
 
 	//Initial window presentation, only start button shown
-function startMenu(){
-	$(".time-remaining").css("display", "none");
-	$(".results").css("display", "none");
+function hideQuestionFeatures(){
+	// $(".results").css("display", "none");
 	$(".question").css("display", "none");
 	$(".answers").css("display", "none");
+};
+
+function startMenu(){
+	hideQuestionFeatures();
+	$(".time-remaining").css("display", "none");
 	$(".start-button").show();
 };
 	//Hide start button, reveal questions
 
-function revealDisplay(){
+function revealQuestionDisplay(){
 	$(".time-remaining").css("display", "block");
 	$(".results").css("display", "block");
 	$(".question").css("display", "block");
@@ -108,24 +124,45 @@ function revealScoreAndReset(){
 
 
 //Functions for checking user answers and then actions for each option - user unanswered, wrong, right -
+function questionUnanswered(){
+	$(".timer").html(timeDisplay);
+	clearInterval(secondCounter);
+	hideQuestionFeatures();
+	$(".results").html("Oh no - out of time! <br><br> The correct answer was: " + triviaGame.questionCorrectAnswer);
+	var countDownToNext = setTimeout(function(){
+		triviaGame.questionCounter++;
+		revealQuestion();
+		$(".results").empty();
+		revealQuestionDisplay();
+
+	}, 1000 * 3);
+};
 
 function checkAnswer(){
+	$(".timer").html(timeDisplay);
+	clearInterval(secondCounter);
+	hideQuestionFeatures();
+	if(triviaGame.questionCorrectAnswer === triviaGame.userAnswer){
+		questionRight();
+	}else{
+		questionWrong();
+	}
 
 
-
-	function questionUnanswered(){
-
-	};
+	
 
 	function questionRight(){
-
+		alert("Yay!");
 	};
 
 	function questionWrong(){
-
+		alert("Oh No!");
 	};
 };
 
+function newQuestion(){
+
+};
 
 //Question Display
 function revealQuestion(){
@@ -135,7 +172,7 @@ function revealQuestion(){
 		$(".answerB").html("Jesus is a biscuit.");
 		$(".answerC").html("No one cares - work harder!");
 		$(".answerD").html("Good God Girl, Get a Grip!");
-		triviaGame.questionCorrectAnswer = "";
+		triviaGame.questionCorrectAnswer = "C";
 		};
 
 	if (triviaGame.questionCounter === 2){
