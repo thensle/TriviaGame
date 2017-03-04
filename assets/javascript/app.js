@@ -9,7 +9,7 @@ var triviaGame = {
 	incorrect: 0,
 	unanswered: 0,
 	userAnswer: "",
-	gameStatus: "startScreen", //options: startScreen, questionDisplayed, questionAnswered
+	gameStatus: "startScreen", //options: startScreen, questionDisplayed, questionAnswered, gameDone
 	questionCounter: 1,
 	questionCorrectAnswer: "",
 	currentTime: 15,
@@ -41,6 +41,7 @@ var triviaGame = {
 
 	    return minutes + ":" + seconds;
 	    },
+
 	timerCountDown: function () {
 
         triviaGame.currentTime--;
@@ -50,24 +51,24 @@ var triviaGame = {
 	    if (triviaGame.currentTime === 0){
 	    	questionUnanswered();
 	    };
-		},
+		}
 
 
 };
 console.log(triviaGame.currentTime);
 
-//Game Phases
-	if (triviaGame.gameStatus === "startScreen"){
-		startMenu();
-		triviaGame.gameStatus === "questionDisplayed";
-
-
-	};
-	
 	
 //Event Listeners
 
 $(".start-button").on("click", function(){
+	triviaGame.correct = 0,
+	triviaGame.incorrect = 0,
+	triviaGame.unanswered = 0,
+	triviaGame.userAnswer = "",
+	triviaGame.gameStatus = "startScreen",
+	triviaGame.questionCounter = 1,
+	triviaGame.questionCorrectAnswer = "",
+	triviaGame.currentTime = 15,
 	revealQuestionDisplay();
 	revealQuestion();
 	console.log(triviaGame.questionCorrectAnswer);
@@ -78,6 +79,7 @@ $(".start-button").on("click", function(){
 $(document).on("click", ".answer", function(){
 	triviaGame.userAnswer = $(this).attr("value");
 	console.log(triviaGame.userAnswer);
+	triviaGame.gameStatus = "questionAnswered";
 	checkAnswer();
 
 });
@@ -86,7 +88,7 @@ $(document).on("click", ".answer", function(){
 
 	//Initial window presentation, only start button shown
 function hideQuestionFeatures(){
-	// $(".results").css("display", "none");
+	$(".results").css("display", "none");
 	$(".question").css("display", "none");
 	$(".answers").css("display", "none");
 };
@@ -99,6 +101,7 @@ function startMenu(){
 	//Hide start button, reveal questions
 
 function revealQuestionDisplay(){
+	
 	$(".time-remaining").css("display", "block");
 	$(".results").css("display", "block");
 	$(".question").css("display", "block");
@@ -107,34 +110,25 @@ function revealQuestionDisplay(){
 };
 
 function revealScoreAndReset(){
-
+	$(".start-button").html("Replay the Extravaganza!")
+	$(".start-button").show();
+	$(".results").html("Lookin' fierce! Here's the realness you served: <br> <br> Number of Questions You Slayed: " 
+		+ triviaGame.correct + "<br> <br> Number of Questions That Clocked You: " + triviaGame.incorrect + 
+		"<br> <br> Number of Questions You're Too Fish to Answer: " + triviaGame.unanswered);
 };
-
-// //Start the Timer for each question
-
-// function startTimer(){
-// 	$(".timer").html("00:15");
-// 	setTimeOut(function(){
-// 		questionUnanswered();
-// 		}, 1000*15);
-
-	
-
-// };
 
 
 //Functions for checking user answers and then actions for each option - user unanswered, wrong, right -
 function questionUnanswered(){
+	triviaGame.unanswered++;
+
 	$(".timer").html(timeDisplay);
 	clearInterval(secondCounter);
 	hideQuestionFeatures();
+
 	$(".results").html("Oh no - out of time! <br><br> The correct answer was: " + triviaGame.questionCorrectAnswer);
 	var countDownToNext = setTimeout(function(){
-		triviaGame.questionCounter++;
-		revealQuestion();
-		$(".results").empty();
-		revealQuestionDisplay();
-
+		newQuestion();
 	}, 1000 * 3);
 };
 
@@ -142,26 +136,47 @@ function checkAnswer(){
 	$(".timer").html(timeDisplay);
 	clearInterval(secondCounter);
 	hideQuestionFeatures();
+
 	if(triviaGame.questionCorrectAnswer === triviaGame.userAnswer){
 		questionRight();
-	}else{
+	} else {
 		questionWrong();
-	}
-
-
+	};
 	
 
 	function questionRight(){
-		alert("Yay!");
+		triviaGame.correct++;
+		$(".results").html("YAAASSS, Mama! <br><br> The correct answer was: " + triviaGame.questionCorrectAnswer);
+		var countDownToNext = setTimeout(function(){
+		newQuestion();
+	}, 1000 * 3);
 	};
 
 	function questionWrong(){
-		alert("Oh No!");
+		triviaGame.incorrect++;
+		$(".results").html("Really, queen? <br><br> The correct answer was: " + triviaGame.questionCorrectAnswer);
+		var countDownToNext = setTimeout(function(){
+		newQuestion();
+	}, 1000 * 3);
 	};
 };
 
 function newQuestion(){
-
+	triviaGame.questionCounter++;
+	if (triviaGame.questionCounter > 5){
+		revealScoreAndReset();
+	} else {
+	$(".results").empty();
+	triviaGame.userAnswer = "";
+	triviaGame.currentTime = 15;
+	secondCounter = 15;
+	triviaGame.gameStatus = "questionDisplayed";
+	
+	revealQuestion();
+	revealQuestionDisplay();
+	$(".timer").html("00:15");
+	triviaGame.startTimer();
+};
 };
 
 //Question Display
@@ -176,86 +191,40 @@ function revealQuestion(){
 		};
 
 	if (triviaGame.questionCounter === 2){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
+		$(".question").html("Who is Derrick Barry most famous for portraying at his Las Vegas show?");
+		$(".answerA").html("Britney Spears");
+		$(".answerB").html("Cher");
+		$(".answerC").html("Madonna");
+		$(".answerD").html("Lady Gaga");
+		triviaGame.questionCorrectAnswer = "A";
 		};
 
 	if (triviaGame.questionCounter === 3){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
+		$(".question").html("During her run of AllStars, Tatianna was sent home by which queen?");
+		$(".answerA").html("Alyssa Edwards");
+		$(".answerB").html("Detox");
+		$(".answerC").html("Katya");
+		$(".answerD").html("Alaska");
+		triviaGame.questionCorrectAnswer = "D";
 		};
 
 	if (triviaGame.questionCounter === 4){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
+		$(".question").html("Which of the following was NOT a Season 7 queen?");
+		$(".answerA").html("Kandy Ho");
+		$(".answerB").html("Jasmine Masters");
+		$(".answerC").html("Jaidynn Diore Fierce");
+		$(".answerD").html("Naysha Lopez");
+		triviaGame.questionCorrectAnswer = "D";
 		};
 
 	if (triviaGame.questionCounter === 5){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
+		$(".question").html("Phi Phi O'Hara got in an infamous fight with which Season 4 queen?");
+		$(".answerA").html("Sharon Needles");
+		$(".answerB").html("Chad Michaels");
+		$(".answerC").html("Jiggly Caliente");
+		$(".answerD").html("The Princess");
+		triviaGame.questionCorrectAnswer = "A";
 		};
-
-	if (triviaGame.questionCounter === 6){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
-		};
-
-	if (triviaGame.questionCounter === 7){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
-		};
-
-	if (triviaGame.questionCounter === 8){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
-		};
-
-	if (triviaGame.questionCounter === 9){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
-		};
-
-	if (triviaGame.questionCounter === 10){
-		$(".question").html("");
-		$(".answerA").html("");
-		$(".answerB").html("");
-		$(".answerC").html("");
-		$(".answerD").html("");
-		triviaGame.questionCorrectAnswer = "";
-		};
-
 };
 
 });
